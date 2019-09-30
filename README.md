@@ -13,7 +13,14 @@ const auth = new JtockAuth({
   debug: false
 });
 
-// SignUp
+export default auth;
+```
+
+## SignUp
+
+```jsx
+import auth from "./auth";
+
 auth
   .signUp(
     {
@@ -29,8 +36,13 @@ auth
   .catch(error => {
     console.log(error);
   });
+```
 
-// SignIn
+## SignIn
+
+```jsx
+import auth from "./auth";
+
 auth
   .signIn("john-doe@gmail.com", "myP@ssw0ord!")
   .then(userDatas => {
@@ -39,8 +51,13 @@ auth
   .catch(error => {
     console.log(error);
   });
+```
 
-// SignOut
+## SignOut (need an active session)
+
+```jsx
+import auth from "./auth";
+
 auth
   .signOut()
   .then(response => {
@@ -49,8 +66,13 @@ auth
   .catch(error => {
     console.log(error);
   });
+```
 
-// Delete resource (need an active session)
+## Delete resource (need an active session)
+
+```jsx
+import auth from "./auth";
+
 auth
   .deleteResource()
   .then(response => {
@@ -59,8 +81,13 @@ auth
   .catch(error => {
     console.log(error);
   });
+```
 
-// Change password
+## Change password
+
+```jsx
+import auth from "./auth";
+
 auth
   .changePassword("myP@ssw0ord!", "newp@SSw0rd", "newp@SSw0rd")
   .then(response => {
@@ -69,20 +96,33 @@ auth
   .catch(error => {
     console.log(error);
   });
+```
 
-// Send reset password email
+## Send reset password link and token by email
+
+```jsx
+import auth from "./auth";
+
 auth
-  .resetPassword("john-doe@gmail.com", "www.url-after-reset.com")
+  .resetPassword("john-doe@gmail.com", "www.reset-password-link.com")
   .then(response => {
     console.log(response);
   })
   .catch(error => {
     console.log(error);
   });
+```
 
-// Update password after email reset
+## Update password after email reset
+
+```jsx
+import auth from "./auth";
+
 auth
-  .updatePasswordByToken("jd97-MDsj763fsGSU", "www.url-after-update.com")
+  .updatePasswordByToken(
+    "jd97-MDsj763fsGSU",
+    "www.url-after-reset-password-success.com"
+  )
   .then(response => {
     console.log(response);
   })
