@@ -1,5 +1,7 @@
 # J-tockauth
 
+A connector for javascript application frontend to Ruby on Rails with Devise Token Auth gem backend
+
 # Usage
 
 ```jsx
