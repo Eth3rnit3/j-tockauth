@@ -1,24 +1,137 @@
 import Axios from "axios";
-import { JtockAuthOptions } from "./@types/options";
+import { JtockAuthOptions, DeviseHeader } from "./@types/options";
+import defaultOptions from "./defaultOptions";
 
 class JtockAuth {
   options: JtockAuthOptions;
+  debug: boolean;
   apiUrl: string;
+  emailField: string;
+  passwordField: string;
+  session: DeviseHeader | undefined;
+  signInUrl: string;
+  signOutUrl: string;
+  validateTokenUrl: string;
   constructor(options: JtockAuthOptions) {
     this.options = options;
+    this.debug = options.debug ? options.debug : false;
     this.apiUrl = `${options.host}${
       options.prefixUrl ? options.prefixUrl : ""
+    }${options.authUrl ? options.authUrl : "/auth"}`;
+    this.emailField = options.emailField ? options.emailField : "email";
+    this.passwordField = options.passwordField
+      ? options.passwordField
+      : "password";
+    // urls
+    this.signInUrl = `${this.apiUrl}${
+      this.options.authUrl ? this.options.authUrl.signIn : "/sign_in"
+    }`;
+    this.signOutUrl = `${this.apiUrl}${
+      this.options.authUrl ? this.options.authUrl.signIn : "/sign_out"
+    }`;
+    this.validateTokenUrl = `${this.apiUrl}${
+      this.options.authUrl
+        ? this.options.authUrl.validateToken
+        : "/validate_token"
     }`;
   }
 
   test() {
-    Axios.get(this.apiUrl)
+    Axios.get(this.signInUrl)
       .then(response => {
-        console.log("Connexion success", response);
+        console.log("Connexion success");
       })
       .catch(error => {
-        console.log("Connexion error", error);
+        if (error.response) {
+          console.log("Connexion success");
+        } else {
+          console.log("Connexion errror");
+        }
       });
+  }
+
+  signIn(email: string, password: string) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const signInResponse = await Axios.post(this.signInUrl, {
+          [this.emailField]: email,
+          [this.passwordField]: password
+        });
+        this.debugIfActive(signInResponse);
+        this.setSession(signInResponse.headers);
+        const validateResponse = await this.validateToken(
+          signInResponse.headers
+        );
+        resolve(validateResponse);
+      } catch (err) {
+        this.debugIfActive(err);
+        reject("error on signin");
+      }
+    });
+  }
+
+  signOut() {
+    if (!this.session) throw "No active session";
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        const logOutResponse = await Axios.delete(this.signOutUrl, {
+          headers: { ...this.session }
+        });
+        this.debugIfActive(logOutResponse);
+        resolve(logOutResponse.data);
+      } catch (err) {
+        this.debugIfActive(err);
+        reject("error on signout");
+      }
+    });
+  }
+
+  validateToken(headers: DeviseHeader) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await Axios.get(this.validateTokenUrl, {
+          params: {
+            uid: headers.uid,
+            client: headers.client,
+            "access-token": headers["access-token"]
+          }
+        });
+        this.setSession(response.headers);
+        resolve(response.data);
+      } catch (err) {
+        reject("error when validate token");
+      }
+    });
+  }
+
+  private debugIfActive(...arg: any) {
+    if (this.debug) {
+      console.log(...arg);
+    }
+  }
+
+  private setSession(headers: DeviseHeader) {
+    if (!this.session) {
+      return (this.session = headers);
+    }
+    this.session = {
+      ["access-token"]: headers["access-token"]
+        ? headers["access-token"]
+        : this.session["access-token"],
+      ["cache-control"]: headers["cache-control"]
+        ? headers["cache-control"]
+        : this.session["cache-control"],
+      client: headers.client ? headers.client : this.session.client,
+      ["content-type"]: headers["content-type"]
+        ? headers["content-type"]
+        : this.session["content-type"],
+      expiry: headers.expiry ? headers.expiry : this.session.expiry,
+      ["token-type"]: headers["token-type"]
+        ? headers["token-type"]
+        : this.session["token-type"],
+      uid: headers.uid ? headers.uid : this.session.uid
+    };
   }
 }
 

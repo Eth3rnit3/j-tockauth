@@ -5,6 +5,7 @@
   "main": "./build/index.js",
   "types": "./src/@types/j-tockauth/index.d.ts",
   "scripts": {
+    "dev": "tsc --watch",
     "build": "tsc"
   },
   "repository": {
