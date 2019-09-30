@@ -14,6 +14,7 @@ declare class JtockAuth {
   validateTokenUrl: string;
 
   test(): Promise<any>;
+  tokenHeaders(): any;
   signIn(email: string, password: string): Promise<any>;
   signOut(): Promise<any>;
   validateToken(headers: DeviseHeader): Promise<any>;

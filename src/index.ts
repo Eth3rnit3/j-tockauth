@@ -49,6 +49,10 @@ class JtockAuth {
       });
   }
 
+  tokenHeaders() {
+    return this.session;
+  }
+
   signIn(email: string, password: string) {
     return new Promise(async (resolve, reject) => {
       try {
