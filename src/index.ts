@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { JtockAuthOptions } from "./declarations/options";
+import { JtockAuthOptions } from "./@types/options";
 
 class JtockAuth {
   options: JtockAuthOptions;
