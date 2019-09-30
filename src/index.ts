@@ -53,6 +53,26 @@ class JtockAuth {
     return this.session;
   }
 
+  signUp(userFields: any, confirmSuccessUrl: string) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const signUpResponse = await Axios.post(
+          this.apiUrl,
+          {
+            ...userFields
+          },
+          { params: { confirm_success_url: confirmSuccessUrl } }
+        );
+        this.debugIfActive(signUpResponse);
+        this.setSession(signUpResponse.headers);
+        resolve(signUpResponse);
+      } catch (err) {
+        this.debugIfActive(err.response);
+        reject("Error on signUp");
+      }
+    });
+  }
+
   signIn(email: string, password: string) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -67,7 +87,7 @@ class JtockAuth {
         );
         resolve(validateResponse);
       } catch (err) {
-        this.debugIfActive(err);
+        this.debugIfActive(err.response);
         reject("error on signin");
       }
     });
@@ -84,7 +104,24 @@ class JtockAuth {
         this.debugIfActive(logOutResponse);
         resolve(logOutResponse.data);
       } catch (err) {
-        this.debugIfActive(err);
+        this.debugIfActive(err.response);
+        reject("error on signout");
+      }
+    });
+  }
+
+  deleteResource() {
+    if (!this.session) throw "No active session";
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        const logOutResponse = await Axios.delete(this.apiUrl, {
+          headers: { ...this.session }
+        });
+        this.debugIfActive(logOutResponse);
+        resolve(logOutResponse.data);
+      } catch (err) {
+        this.debugIfActive(err.response);
         reject("error on signout");
       }
     });
@@ -103,7 +140,67 @@ class JtockAuth {
         this.setSession(response.headers);
         resolve(response.data);
       } catch (err) {
+        this.debugIfActive(err.response);
         reject("error when validate token");
+      }
+    });
+  }
+
+  changePassword(
+    oldPassword: string,
+    newPassword: string,
+    newPasswordConfirmation: string
+  ) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const changePasswordResponse = await Axios.put(
+          `${this.apiUrl}`,
+          {
+            current_password: oldPassword,
+            new_password: newPassword,
+            new_password_confirmation: newPasswordConfirmation
+          },
+          {
+            headers: { ...this.session }
+          }
+        );
+        this.debugIfActive(changePasswordResponse);
+        this.setSession(changePasswordResponse.headers);
+        resolve(changePasswordResponse);
+      } catch (err) {
+        this.debugIfActive(err.response);
+        reject("error on signin");
+      }
+    });
+  }
+
+  resetPassword(email: string, redirectUrl: string) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const resetPasswordResponse = await Axios.post(
+          `${this.apiUrl}/password`,
+          { email, redirect_url: redirectUrl }
+        );
+        this.debugIfActive(resetPasswordResponse);
+        resolve(resetPasswordResponse);
+      } catch (err) {
+        this.debugIfActive(err.response);
+        reject("Error on signUp");
+      }
+    });
+  }
+
+  updatePasswordByToken(token: string, redirectUrl: string) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const updatePassword = await Axios.get(`${this.apiUrl}/password`, {
+          params: { reset_password_token: token, redirect_url: redirectUrl }
+        });
+        this.debugIfActive(updatePassword);
+        resolve(updatePassword);
+      } catch (err) {
+        this.debugIfActive(err.response);
+        reject("Error on signUp");
       }
     });
   }

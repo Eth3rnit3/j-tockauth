@@ -14,9 +14,18 @@ declare class JtockAuth {
   validateTokenUrl: string;
 
   test(): Promise<any>;
-  tokenHeaders(): any;
+  tokenHeaders(): DeviseHeader;
+  signUp(userFields: any, confirmSuccessUrl: string): Promise<any>;
   signIn(email: string, password: string): Promise<any>;
   signOut(): Promise<any>;
+  deleteResource(): Promise<any>;
   validateToken(headers: DeviseHeader): Promise<any>;
+  changePassword(
+    oldPassword: string,
+    newPassword: string,
+    newPasswordConfirmation: string
+  ): Promise<any>;
+  resetPassword(email: string, redirectUrl: string): Promise<any>;
+  updatePasswordByToken(token: string, redirectUrl: string): Promise<any>;
 }
 export default JtockAuth;
