@@ -1,6 +1,5 @@
 import Axios from "axios";
 import { JtockAuthOptions, DeviseHeader } from "./@types/options";
-import defaultOptions from "./defaultOptions";
 
 class JtockAuth {
   options: JtockAuthOptions;
