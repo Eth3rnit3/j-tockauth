@@ -1,5 +1,5 @@
 {
-  "exclude": ["node_modules", "./src/@types"],
+  "exclude": ["node_modules", "./src/@types", "examples"],
   "compilerOptions": {
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */
