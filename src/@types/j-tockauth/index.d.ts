@@ -1,5 +1,9 @@
 /// <reference types="typescript" />
-import { JtockAuthOptions, DeviseHeader } from "../options";
+import {
+  JtockAuthOptions,
+  DeviseHeader,
+  authenticateRouteOptions
+} from "../options";
 
 export as namespace JtockAuth;
 declare class JtockAuth {
@@ -7,6 +11,7 @@ declare class JtockAuth {
   options: JtockAuthOptions;
   debug: boolean;
   apiUrl: string;
+  apiAuthUrl: string;
   emailField: string;
   passwordField: string;
   signInUrl: string;
@@ -27,5 +32,9 @@ declare class JtockAuth {
   ): Promise<any>;
   resetPassword(email: string, redirectUrl: string): Promise<any>;
   updatePasswordByToken(token: string, redirectUrl: string): Promise<any>;
+  authenticateRoute(
+    url: string,
+    options: authenticateRouteOptions
+  ): Promise<any>;
 }
 export default JtockAuth;

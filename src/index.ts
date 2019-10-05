@@ -1,10 +1,15 @@
 import Axios from "axios";
-import { JtockAuthOptions, DeviseHeader } from "./@types/options";
+import {
+  JtockAuthOptions,
+  DeviseHeader,
+  authenticateRouteOptions
+} from "./@types/options";
 
 class JtockAuth {
   options: JtockAuthOptions;
   debug: boolean;
   apiUrl: string;
+  apiAuthUrl: string;
   emailField: string;
   passwordField: string;
   session: DeviseHeader | undefined;
@@ -16,19 +21,22 @@ class JtockAuth {
     this.debug = options.debug ? options.debug : false;
     this.apiUrl = `${options.host}${
       options.prefixUrl ? options.prefixUrl : ""
-    }${options.authUrl ? options.authUrl : "/auth"}`;
+    }`;
+    this.apiAuthUrl = `${this.apiUrl}${
+      options.authUrl ? options.authUrl : "/auth"
+    }`;
     this.emailField = options.emailField ? options.emailField : "email";
     this.passwordField = options.passwordField
       ? options.passwordField
       : "password";
     // urls
-    this.signInUrl = `${this.apiUrl}${
+    this.signInUrl = `${this.apiAuthUrl}${
       this.options.authUrl ? this.options.authUrl.signIn : "/sign_in"
     }`;
-    this.signOutUrl = `${this.apiUrl}${
+    this.signOutUrl = `${this.apiAuthUrl}${
       this.options.authUrl ? this.options.authUrl.signIn : "/sign_out"
     }`;
-    this.validateTokenUrl = `${this.apiUrl}${
+    this.validateTokenUrl = `${this.apiAuthUrl}${
       this.options.authUrl
         ? this.options.authUrl.validateToken
         : "/validate_token"
@@ -57,7 +65,7 @@ class JtockAuth {
     return new Promise(async (resolve, reject) => {
       try {
         const signUpResponse = await Axios.post(
-          this.apiUrl,
+          this.apiAuthUrl,
           {
             ...userFields
           },
@@ -115,7 +123,7 @@ class JtockAuth {
 
     return new Promise(async (resolve, reject) => {
       try {
-        const logOutResponse = await Axios.delete(this.apiUrl, {
+        const logOutResponse = await Axios.delete(this.apiAuthUrl, {
           headers: { ...this.session }
         });
         this.debugIfActive(logOutResponse);
@@ -154,7 +162,7 @@ class JtockAuth {
     return new Promise(async (resolve, reject) => {
       try {
         const changePasswordResponse = await Axios.put(
-          `${this.apiUrl}`,
+          `${this.apiAuthUrl}`,
           {
             current_password: oldPassword,
             new_password: newPassword,
@@ -178,7 +186,7 @@ class JtockAuth {
     return new Promise(async (resolve, reject) => {
       try {
         const resetPasswordResponse = await Axios.post(
-          `${this.apiUrl}/password`,
+          `${this.apiAuthUrl}/password`,
           { email, redirect_url: redirectUrl }
         );
         this.debugIfActive(resetPasswordResponse);
@@ -193,7 +201,7 @@ class JtockAuth {
   updatePasswordByToken(token: string, redirectUrl: string) {
     return new Promise(async (resolve, reject) => {
       try {
-        const updatePassword = await Axios.get(`${this.apiUrl}/password`, {
+        const updatePassword = await Axios.get(`${this.apiAuthUrl}/password`, {
           params: { reset_password_token: token, redirect_url: redirectUrl }
         });
         this.debugIfActive(updatePassword);
@@ -201,6 +209,31 @@ class JtockAuth {
       } catch (err) {
         this.debugIfActive(err.response);
         reject("Error on signUp");
+      }
+    });
+  }
+
+  authenticateRoute(url: string, options: authenticateRouteOptions = {}) {
+    if (url[0] === "/") {
+      url = `${this.apiUrl}${url}`;
+    }
+    return new Promise(async (resolve, reject) => {
+      try {
+        const reponse = await Axios({
+          url,
+          method: options.method,
+          data: options.data,
+          headers: {
+            ...options.headers,
+            ...this.session
+          }
+        });
+        this.debugIfActive(reponse);
+        this.setSession(reponse.headers);
+        resolve(reponse);
+      } catch (err) {
+        this.debugIfActive(err.response);
+        reject("Error on authenticateRoute");
       }
     });
   }

@@ -23,3 +23,23 @@ export interface DeviseHeader {
   "token-type": string;
   uid: string;
 }
+
+export interface authenticateRouteOptions {
+  method?:
+    | "GET"
+    | "POST"
+    | "PUT"
+    | "DELETE"
+    | "get"
+    | "delete"
+    | "head"
+    | "HEAD"
+    | "options"
+    | "OPTIONS"
+    | "post"
+    | "put"
+    | "patch"
+    | "PATCH";
+  data?: object | FormData;
+  headers?: object;
+}

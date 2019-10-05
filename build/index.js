@@ -172,6 +172,24 @@ class JtockAuth {
             }
         });
     }
+    authenticateRoute(url, options) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const reponse = await axios_1.default({
+                    url,
+                    method: options.method,
+                    data: options.data
+                });
+                this.debugIfActive(reponse);
+                this.setSession(reponse.headers);
+                resolve(reponse);
+            }
+            catch (err) {
+                this.debugIfActive(err.response);
+                reject("Error on authenticateRoute");
+            }
+        });
+    }
     debugIfActive(...arg) {
         if (this.debug) {
             console.log(...arg);
