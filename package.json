@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc",
-    "build-example": "tsc --module commonjs --target ES2019 --out ./examples/index.js ./examples/index.ts ",
+    "build-example": "tsc --module commonjs --target ES2019 ./examples/index.ts ",
     "run-example": "node examples/index.js"
   },
   "repository": {
