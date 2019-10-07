@@ -5,6 +5,7 @@
   "main": "./build/index.js",
   "types": "./src/@types/j-tockauth/index.d.ts",
   "scripts": {
+    "test": "jest",
     "dev": "tsc --watch",
     "build": "tsc",
     "build-example": "tsc --module commonjs --target ES2019 ./examples/index.ts ",
@@ -28,5 +29,11 @@
   "dependencies": {
     "@types/axios": "^0.14.0",
     "axios": "^0.19.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.18",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.1.0",
+    "typescript": "^3.6.3"
   }
 }
