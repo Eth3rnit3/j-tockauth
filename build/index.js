@@ -8,15 +8,16 @@ class JtockAuth {
     constructor(options) {
         this.options = options;
         this.debug = options.debug ? options.debug : false;
-        this.apiUrl = `${options.host}${options.prefixUrl ? options.prefixUrl : ""}${options.authUrl ? options.authUrl : "/auth"}`;
+        this.apiUrl = `${options.host}${options.prefixUrl ? options.prefixUrl : ""}`;
+        this.apiAuthUrl = `${this.apiUrl}${options.authUrl ? options.authUrl : "/auth"}`;
         this.emailField = options.emailField ? options.emailField : "email";
         this.passwordField = options.passwordField
             ? options.passwordField
             : "password";
         // urls
-        this.signInUrl = `${this.apiUrl}${this.options.authUrl ? this.options.authUrl.signIn : "/sign_in"}`;
-        this.signOutUrl = `${this.apiUrl}${this.options.authUrl ? this.options.authUrl.signIn : "/sign_out"}`;
-        this.validateTokenUrl = `${this.apiUrl}${this.options.authUrl
+        this.signInUrl = `${this.apiAuthUrl}${this.options.authUrl ? this.options.authUrl.signIn : "/sign_in"}`;
+        this.signOutUrl = `${this.apiAuthUrl}${this.options.authUrl ? this.options.authUrl.signIn : "/sign_out"}`;
+        this.validateTokenUrl = `${this.apiAuthUrl}${this.options.authUrl
             ? this.options.authUrl.validateToken
             : "/validate_token"}`;
     }
@@ -40,7 +41,7 @@ class JtockAuth {
     signUp(userFields, confirmSuccessUrl) {
         return new Promise(async (resolve, reject) => {
             try {
-                const signUpResponse = await axios_1.default.post(this.apiUrl, {
+                const signUpResponse = await axios_1.default.post(this.apiAuthUrl, {
                     ...userFields
                 }, { params: { confirm_success_url: confirmSuccessUrl } });
                 this.debugIfActive(signUpResponse);
@@ -49,7 +50,7 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                reject("Error on signUp");
+                reject(err);
             }
         });
     }
@@ -67,7 +68,7 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                reject("error on signin");
+                reject(err);
             }
         });
     }
@@ -84,7 +85,7 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                reject("error on signout");
+                reject(err);
             }
         });
     }
@@ -93,7 +94,7 @@ class JtockAuth {
             throw "No active session";
         return new Promise(async (resolve, reject) => {
             try {
-                const logOutResponse = await axios_1.default.delete(this.apiUrl, {
+                const logOutResponse = await axios_1.default.delete(this.apiAuthUrl, {
                     headers: { ...this.session }
                 });
                 this.debugIfActive(logOutResponse);
@@ -101,7 +102,7 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                reject("error on signout");
+                reject(err);
             }
         });
     }
@@ -120,14 +121,14 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                reject("error when validate token");
+                reject(err);
             }
         });
     }
     changePassword(oldPassword, newPassword, newPasswordConfirmation) {
         return new Promise(async (resolve, reject) => {
             try {
-                const changePasswordResponse = await axios_1.default.put(`${this.apiUrl}`, {
+                const changePasswordResponse = await axios_1.default.put(`${this.apiAuthUrl}`, {
                     current_password: oldPassword,
                     new_password: newPassword,
                     new_password_confirmation: newPasswordConfirmation
@@ -140,27 +141,27 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                reject("error on signin");
+                reject(err);
             }
         });
     }
     resetPassword(email, redirectUrl) {
         return new Promise(async (resolve, reject) => {
             try {
-                const resetPasswordResponse = await axios_1.default.post(`${this.apiUrl}/password`, { email, redirect_url: redirectUrl });
+                const resetPasswordResponse = await axios_1.default.post(`${this.apiAuthUrl}/password`, { email, redirect_url: redirectUrl });
                 this.debugIfActive(resetPasswordResponse);
                 resolve(resetPasswordResponse);
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                reject("Error on signUp");
+                reject(err);
             }
         });
     }
     updatePasswordByToken(token, redirectUrl) {
         return new Promise(async (resolve, reject) => {
             try {
-                const updatePassword = await axios_1.default.get(`${this.apiUrl}/password`, {
+                const updatePassword = await axios_1.default.get(`${this.apiAuthUrl}/password/edit`, {
                     params: { reset_password_token: token, redirect_url: redirectUrl }
                 });
                 this.debugIfActive(updatePassword);
@@ -168,17 +169,24 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                reject("Error on signUp");
+                reject(err);
             }
         });
     }
-    authenticateRoute(url, options) {
+    authenticateRoute(url, options = {}) {
+        if (url[0] === "/") {
+            url = `${this.apiUrl}${url}`;
+        }
         return new Promise(async (resolve, reject) => {
             try {
                 const reponse = await axios_1.default({
                     url,
                     method: options.method,
-                    data: options.data
+                    data: options.data,
+                    headers: {
+                        ...options.headers,
+                        ...this.session
+                    }
                 });
                 this.debugIfActive(reponse);
                 this.setSession(reponse.headers);
@@ -186,7 +194,7 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                reject("Error on authenticateRoute");
+                reject(err);
             }
         });
     }

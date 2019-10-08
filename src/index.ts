@@ -201,9 +201,12 @@ class JtockAuth {
   updatePasswordByToken(token: string, redirectUrl: string) {
     return new Promise(async (resolve, reject) => {
       try {
-        const updatePassword = await Axios.get(`${this.apiAuthUrl}/password`, {
-          params: { reset_password_token: token, redirect_url: redirectUrl }
-        });
+        const updatePassword = await Axios.get(
+          `${this.apiAuthUrl}/password/edit`,
+          {
+            params: { reset_password_token: token, redirect_url: redirectUrl }
+          }
+        );
         this.debugIfActive(updatePassword);
         resolve(updatePassword);
       } catch (err) {

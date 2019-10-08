@@ -83,7 +83,7 @@ auth
   });
 ```
 
-## Change password
+## Change password (need an active session)
 
 ```jsx
 import auth from "./auth";
