@@ -1,7 +1,7 @@
 import JTockAuth from "../src";
 
 export const auth = new JTockAuth({
-  host: "https://evening-beach-51109.herokuapp.com",
+  host: "http://127.0.0.1:3000",
   prefixUrl: "/api/v1",
   debug: false
 });

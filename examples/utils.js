@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const src_1 = require("../src");
 exports.auth = new src_1.default({
-    host: "https://evening-beach-51109.herokuapp.com",
+    host: "http://127.0.0.1:3000",
     prefixUrl: "/api/v1",
     debug: false
 });

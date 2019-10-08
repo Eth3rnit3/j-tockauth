@@ -76,7 +76,7 @@ class JtockAuth {
         resolve(signUpResponse);
       } catch (err) {
         this.debugIfActive(err.response);
-        reject("Error on signUp");
+        reject(err);
       }
     });
   }
@@ -96,7 +96,7 @@ class JtockAuth {
         resolve(validateResponse);
       } catch (err) {
         this.debugIfActive(err.response);
-        reject("error on signin");
+        reject(err);
       }
     });
   }
@@ -113,7 +113,7 @@ class JtockAuth {
         resolve(logOutResponse.data);
       } catch (err) {
         this.debugIfActive(err.response);
-        reject("error on signout");
+        reject(err);
       }
     });
   }
@@ -130,7 +130,7 @@ class JtockAuth {
         resolve(logOutResponse.data);
       } catch (err) {
         this.debugIfActive(err.response);
-        reject("error on signout");
+        reject(err);
       }
     });
   }
@@ -149,7 +149,7 @@ class JtockAuth {
         resolve(response.data);
       } catch (err) {
         this.debugIfActive(err.response);
-        reject("error when validate token");
+        reject(err);
       }
     });
   }
@@ -177,7 +177,7 @@ class JtockAuth {
         resolve(changePasswordResponse);
       } catch (err) {
         this.debugIfActive(err.response);
-        reject("error on signin");
+        reject(err);
       }
     });
   }
@@ -193,7 +193,7 @@ class JtockAuth {
         resolve(resetPasswordResponse);
       } catch (err) {
         this.debugIfActive(err.response);
-        reject("Error on signUp");
+        reject(err);
       }
     });
   }
@@ -208,7 +208,7 @@ class JtockAuth {
         resolve(updatePassword);
       } catch (err) {
         this.debugIfActive(err.response);
-        reject("Error on signUp");
+        reject(err);
       }
     });
   }
@@ -233,7 +233,7 @@ class JtockAuth {
         resolve(reponse);
       } catch (err) {
         this.debugIfActive(err.response);
-        reject("Error on authenticateRoute");
+        reject(err);
       }
     });
   }
