@@ -5,6 +5,8 @@ import {
   authenticateRouteOptions
 } from "./@types/options";
 
+const storageKey = "J-tockAuth-Storage";
+
 class JtockAuth {
   options: JtockAuthOptions;
   debug: boolean;
@@ -17,8 +19,8 @@ class JtockAuth {
   signOutUrl: string;
   validateTokenUrl: string;
   constructor(options: JtockAuthOptions) {
-    this.options = options;
     this.debug = options.debug ? options.debug : false;
+    this.options = options;
     this.apiUrl = `${options.host}${
       options.prefixUrl ? options.prefixUrl : ""
     }`;
@@ -41,6 +43,8 @@ class JtockAuth {
         ? this.options.authUrl.validateToken
         : "/validate_token"
     }`;
+
+    this.setLastSession();
   }
 
   test() {
@@ -110,6 +114,7 @@ class JtockAuth {
           headers: { ...this.session }
         });
         this.debugIfActive(logOutResponse);
+        localStorage.removeItem(storageKey);
         resolve(logOutResponse.data);
       } catch (err) {
         this.debugIfActive(err.response);
@@ -251,7 +256,7 @@ class JtockAuth {
     if (!this.session) {
       return (this.session = headers);
     }
-    this.session = {
+    const session = {
       ["access-token"]: headers["access-token"]
         ? headers["access-token"]
         : this.session["access-token"],
@@ -268,6 +273,16 @@ class JtockAuth {
         : this.session["token-type"],
       uid: headers.uid ? headers.uid : this.session.uid
     };
+    this.session = { ...session };
+    localStorage.setItem(storageKey, JSON.stringify(session));
+  }
+
+  private setLastSession() {
+    const lastSession = localStorage.getItem(storageKey);
+    if (lastSession) {
+      const headers: DeviseHeader = JSON.parse(lastSession);
+      this.setSession(headers);
+    }
   }
 }
 

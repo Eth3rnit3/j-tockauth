@@ -4,10 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
+const storageKey = "J-tockAuth-Storage";
 class JtockAuth {
     constructor(options) {
-        this.options = options;
         this.debug = options.debug ? options.debug : false;
+        this.options = options;
         this.apiUrl = `${options.host}${options.prefixUrl ? options.prefixUrl : ""}`;
         this.apiAuthUrl = `${this.apiUrl}${options.authUrl ? options.authUrl : "/auth"}`;
         this.emailField = options.emailField ? options.emailField : "email";
@@ -20,6 +21,7 @@ class JtockAuth {
         this.validateTokenUrl = `${this.apiAuthUrl}${this.options.authUrl
             ? this.options.authUrl.validateToken
             : "/validate_token"}`;
+        this.setLastSession();
     }
     test() {
         axios_1.default.get(this.signInUrl)
@@ -81,6 +83,7 @@ class JtockAuth {
                     headers: { ...this.session }
                 });
                 this.debugIfActive(logOutResponse);
+                localStorage.removeItem(storageKey);
                 resolve(logOutResponse.data);
             }
             catch (err) {
@@ -207,7 +210,7 @@ class JtockAuth {
         if (!this.session) {
             return (this.session = headers);
         }
-        this.session = {
+        const session = {
             ["access-token"]: headers["access-token"]
                 ? headers["access-token"]
                 : this.session["access-token"],
@@ -224,6 +227,15 @@ class JtockAuth {
                 : this.session["token-type"],
             uid: headers.uid ? headers.uid : this.session.uid
         };
+        this.session = { ...session };
+        localStorage.setItem(storageKey, JSON.stringify(session));
+    }
+    setLastSession() {
+        const lastSession = localStorage.getItem(storageKey);
+        if (lastSession) {
+            const headers = JSON.parse(lastSession);
+            this.setSession(headers);
+        }
     }
 }
 exports.default = JtockAuth;
