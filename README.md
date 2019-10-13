@@ -130,3 +130,22 @@ auth
     console.log(error);
   });
 ```
+
+## Protected routes
+
+```jsx
+import auth from "./auth";
+
+auth
+  .authenticateRoute("/posts", {
+    method: "POST",
+    // data can be an json object or a FormData
+    data: { title: "My post title", body: "My post body", user_id: 1 }
+  })
+  .then(postsResponse => {
+    console.log(postsResponse);
+  })
+  .catch(error => {
+    console.log(error);
+  });
+```
