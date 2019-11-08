@@ -79,11 +79,11 @@ class JtockAuth {
             throw "No active session";
         return new Promise(async (resolve, reject) => {
             try {
+                localStorage.removeItem(storageKey);
                 const logOutResponse = await axios_1.default.delete(this.signOutUrl, {
                     headers: { ...this.session }
                 });
                 this.debugIfActive(logOutResponse);
-                localStorage.removeItem(storageKey);
                 resolve(logOutResponse.data);
             }
             catch (err) {
@@ -133,8 +133,8 @@ class JtockAuth {
             try {
                 const changePasswordResponse = await axios_1.default.put(`${this.apiAuthUrl}`, {
                     current_password: oldPassword,
-                    new_password: newPassword,
-                    new_password_confirmation: newPasswordConfirmation
+                    password: newPassword,
+                    password_confirmation: newPasswordConfirmation
                 }, {
                     headers: { ...this.session }
                 });
@@ -144,6 +144,7 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
+                this.setSession(err.response.headers);
                 reject(err);
             }
         });
@@ -197,6 +198,7 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
+                this.setSession(err.response.headers);
                 reject(err);
             }
         });

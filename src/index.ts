@@ -110,11 +110,11 @@ class JtockAuth {
 
     return new Promise(async (resolve, reject) => {
       try {
+        localStorage.removeItem(storageKey);
         const logOutResponse = await Axios.delete(this.signOutUrl, {
           headers: { ...this.session }
         });
         this.debugIfActive(logOutResponse);
-        localStorage.removeItem(storageKey);
         resolve(logOutResponse.data);
       } catch (err) {
         this.debugIfActive(err.response);
@@ -170,8 +170,8 @@ class JtockAuth {
           `${this.apiAuthUrl}`,
           {
             current_password: oldPassword,
-            new_password: newPassword,
-            new_password_confirmation: newPasswordConfirmation
+            password: newPassword,
+            password_confirmation: newPasswordConfirmation
           },
           {
             headers: { ...this.session }
@@ -182,6 +182,7 @@ class JtockAuth {
         resolve(changePasswordResponse);
       } catch (err) {
         this.debugIfActive(err.response);
+        this.setSession(err.response.headers);
         reject(err);
       }
     });
@@ -241,6 +242,7 @@ class JtockAuth {
         resolve(reponse);
       } catch (err) {
         this.debugIfActive(err.response);
+        this.setSession(err.response.headers);
         reject(err);
       }
     });
