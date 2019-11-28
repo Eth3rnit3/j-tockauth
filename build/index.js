@@ -5,9 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const storageKey = "J-tockAuth-Storage";
+const storageRoleKey = "J-tockAuth-roles";
 class JtockAuth {
     constructor(options) {
         this.debug = options.debug ? options.debug : false;
+        this.roles = [];
         this.options = options;
         this.apiUrl = `${options.host}${options.prefixUrl ? options.prefixUrl : ""}`;
         this.apiAuthUrl = `${this.apiUrl}${options.authUrl ? options.authUrl : "/auth"}`;
@@ -78,6 +80,8 @@ class JtockAuth {
                 this.debugIfActive(signInResponse);
                 this.setSession(signInResponse.headers);
                 const validateResponse = await this.validateToken(signInResponse.headers);
+                //@ts-ignore
+                this.setRoles(validateResponse);
                 resolve(validateResponse);
             }
             catch (err) {
@@ -157,7 +161,9 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                this.setSession(err.response.headers);
+                if (err.response.headers['access-token']) {
+                    this.setSession(err.response.headers);
+                }
                 reject(err);
             }
         });
@@ -211,7 +217,9 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                this.setSession(err.response.headers);
+                if (err.response.headers['access-token']) {
+                    this.setSession(err.response.headers);
+                }
                 reject(err);
             }
         });
@@ -247,10 +255,18 @@ class JtockAuth {
     }
     setLastSession() {
         const lastSession = localStorage.getItem(storageKey);
+        const lastRoles = localStorage.getItem(storageRoleKey);
         if (lastSession) {
             const headers = JSON.parse(lastSession);
             this.setSession(headers);
         }
+        if (lastRoles) {
+            this.roles = JSON.parse(lastRoles);
+        }
+    }
+    setRoles(response) {
+        this.roles = response ? response.data.roles : [];
+        localStorage.setItem(storageRoleKey, JSON.stringify(this.roles));
     }
 }
 exports.default = JtockAuth;

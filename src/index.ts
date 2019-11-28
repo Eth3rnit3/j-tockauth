@@ -1,4 +1,4 @@
-import Axios from "axios";
+import Axios, { AxiosResponse } from "axios";
 import {
   JtockAuthOptions,
   DeviseHeader,
@@ -6,6 +6,7 @@ import {
 } from "./@types/options";
 
 const storageKey = "J-tockAuth-Storage";
+const storageRoleKey = "J-tockAuth-roles";
 
 class JtockAuth {
   options: JtockAuthOptions;
@@ -18,8 +19,10 @@ class JtockAuth {
   signInUrl: string;
   signOutUrl: string;
   validateTokenUrl: string;
+  roles: Array<any>;
   constructor(options: JtockAuthOptions) {
     this.debug = options.debug ? options.debug : false;
+    this.roles = [];
     this.options = options;
     this.apiUrl = `${options.host}${
       options.prefixUrl ? options.prefixUrl : ""
@@ -110,6 +113,8 @@ class JtockAuth {
         const validateResponse = await this.validateToken(
           signInResponse.headers
         );
+        //@ts-ignore
+        this.setRoles(validateResponse)
         resolve(validateResponse);
       } catch (err) {
         this.debugIfActive(err.response);
@@ -196,7 +201,9 @@ class JtockAuth {
         resolve(changePasswordResponse);
       } catch (err) {
         this.debugIfActive(err.response);
-        this.setSession(err.response.headers);
+        if (err.response.headers['access-token']){
+          this.setSession(err.response.headers);
+        }
         reject(err);
       }
     });
@@ -266,7 +273,9 @@ class JtockAuth {
         resolve(reponse);
       } catch (err) {
         this.debugIfActive(err.response);
-        this.setSession(err.response.headers);
+        if (err.response.headers['access-token']){
+          this.setSession(err.response.headers);
+        }
         reject(err);
       }
     });
@@ -305,10 +314,19 @@ class JtockAuth {
 
   private setLastSession() {
     const lastSession = localStorage.getItem(storageKey);
+    const lastRoles = localStorage.getItem(storageRoleKey);
     if (lastSession) {
       const headers: DeviseHeader = JSON.parse(lastSession);
       this.setSession(headers);
     }
+    if (lastRoles) {
+      this.roles = JSON.parse(lastRoles)
+    }
+  }
+
+  private setRoles(response: AxiosResponse<any>) {
+    this.roles = response ? response.data.roles : []
+    localStorage.setItem(storageRoleKey, JSON.stringify(this.roles))
   }
 }
 

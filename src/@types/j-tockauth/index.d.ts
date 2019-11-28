@@ -15,6 +15,7 @@ declare class JtockAuth {
   emailField: string;
   passwordField: string;
   session: DeviseHeader | undefined;
+  roles: Array<any>;
   signInUrl: string;
   signOutUrl: string;
   validateTokenUrl: string;
