@@ -45,6 +45,19 @@ class JtockAuth {
     }`;
 
     this.setLastSession();
+
+    Axios.interceptors.response.use(function (response) {
+      if (Array.isArray(response.data)){
+        return {
+          ...response,
+          total: response.data.length
+        }
+      }
+      return response;
+    }, function (error) {
+      // Do something with response error
+      return Promise.reject(error);
+    });
   }
 
   test() {
@@ -237,15 +250,16 @@ class JtockAuth {
             ...options.headers,
             ...this.session
           },
-          transformResponse: (data: any) => {
-            if (Array.isArray(data)){
-              return {
-                data,
-                total: data.length
-              }
-            }
-            return data;
-          }
+          // transformResponse: (data: string) => {
+          //   const parsedData = JSON.parse(data)
+          //   if (Array.isArray(parsedData)){
+          //     return {
+          //       data: parsedData,
+          //       total: data.length
+          //     }
+          //   }
+          //   return data;
+          // }
         });
         this.debugIfActive(reponse);
         this.setSession(reponse.headers);

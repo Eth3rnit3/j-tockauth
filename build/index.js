@@ -22,6 +22,18 @@ class JtockAuth {
             ? this.options.authUrl.validateToken
             : "/validate_token"}`;
         this.setLastSession();
+        axios_1.default.interceptors.response.use(function (response) {
+            if (Array.isArray(response.data)) {
+                return {
+                    ...response,
+                    total: response.data.length
+                };
+            }
+            return response;
+        }, function (error) {
+            // Do something with response error
+            return Promise.reject(error);
+        });
     }
     test() {
         axios_1.default.get(this.signInUrl)
@@ -192,15 +204,6 @@ class JtockAuth {
                         ...options.headers,
                         ...this.session
                     },
-                    transformResponse: (data) => {
-                        if (Array.isArray(data)) {
-                            return {
-                                data,
-                                total: data.length
-                            };
-                        }
-                        return data;
-                    }
                 });
                 this.debugIfActive(reponse);
                 this.setSession(reponse.headers);
