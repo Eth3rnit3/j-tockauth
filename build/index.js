@@ -191,6 +191,15 @@ class JtockAuth {
                     headers: {
                         ...options.headers,
                         ...this.session
+                    },
+                    transformResponse: (data) => {
+                        if (Array.isArray(data)) {
+                            return {
+                                data,
+                                total: data.length
+                            };
+                        }
+                        return data;
                     }
                 });
                 this.debugIfActive(reponse);
