@@ -83,6 +83,7 @@ class JtockAuth {
                 const logOutResponse = await axios_1.default.delete(this.signOutUrl, {
                     headers: { ...this.session }
                 });
+                this.session = undefined;
                 this.debugIfActive(logOutResponse);
                 resolve(logOutResponse.data);
             }

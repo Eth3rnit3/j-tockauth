@@ -114,6 +114,7 @@ class JtockAuth {
         const logOutResponse = await Axios.delete(this.signOutUrl, {
           headers: { ...this.session }
         });
+        this.session = undefined;
         this.debugIfActive(logOutResponse);
         resolve(logOutResponse.data);
       } catch (err) {
