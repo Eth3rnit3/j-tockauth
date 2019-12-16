@@ -9,7 +9,7 @@ const storageRoleKey = "J-tockAuth-roles";
 class JtockAuth {
     constructor(options) {
         this.debug = options.debug ? options.debug : false;
-        this.roles = [];
+        this.roles = options.useRoles ? [] : undefined;
         this.options = options;
         this.apiUrl = `${options.host}${options.prefixUrl ? options.prefixUrl : ""}`;
         this.apiAuthUrl = `${this.apiUrl}${options.authUrl ? options.authUrl : "/auth"}`;
@@ -33,7 +33,6 @@ class JtockAuth {
             }
             return response;
         }, function (error) {
-            // Do something with response error
             return Promise.reject(error);
         });
     }
@@ -265,8 +264,10 @@ class JtockAuth {
         }
     }
     setRoles(response) {
-        this.roles = response ? response.data.roles : [];
-        localStorage.setItem(storageRoleKey, JSON.stringify(this.roles));
+        if (this.options.useRoles) {
+            this.roles = response && response.data ? response.data.roles : [];
+            localStorage.setItem(storageRoleKey, JSON.stringify(this.roles));
+        }
     }
 }
 exports.default = JtockAuth;

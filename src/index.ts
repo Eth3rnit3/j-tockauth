@@ -19,10 +19,10 @@ class JtockAuth {
   signInUrl: string;
   signOutUrl: string;
   validateTokenUrl: string;
-  roles: Array<any>;
+  roles: Array<any> | undefined;
   constructor(options: JtockAuthOptions) {
     this.debug = options.debug ? options.debug : false;
-    this.roles = [];
+    this.roles = options.useRoles ? [] : undefined;
     this.options = options;
     this.apiUrl = `${options.host}${
       options.prefixUrl ? options.prefixUrl : ""
@@ -58,7 +58,6 @@ class JtockAuth {
       }
       return response;
     }, function (error) {
-      // Do something with response error
       return Promise.reject(error);
     });
   }
@@ -257,16 +256,6 @@ class JtockAuth {
             ...options.headers,
             ...this.session
           },
-          // transformResponse: (data: string) => {
-          //   const parsedData = JSON.parse(data)
-          //   if (Array.isArray(parsedData)){
-          //     return {
-          //       data: parsedData,
-          //       total: data.length
-          //     }
-          //   }
-          //   return data;
-          // }
         });
         this.debugIfActive(reponse);
         this.setSession(reponse.headers);
@@ -325,8 +314,10 @@ class JtockAuth {
   }
 
   private setRoles(response: AxiosResponse<any>) {
-    this.roles = response ? response.data.roles : []
-    localStorage.setItem(storageRoleKey, JSON.stringify(this.roles))
+    if(this.options.useRoles){
+      this.roles = response && response.data ? response.data.roles : []
+      localStorage.setItem(storageRoleKey, JSON.stringify(this.roles))
+    }
   }
 }
 

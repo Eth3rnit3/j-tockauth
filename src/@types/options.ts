@@ -4,7 +4,8 @@ export interface JtockAuthOptions {
   authUrl?: JtockAuthUrls;
   emailField?: string; //       default: 'email'
   passwordField?: string; //    default: 'password'
-  debug?: boolean; //    default: false
+  debug?: boolean; //  default: false
+  useRoles?: boolean; // default: false
 }
 
 export interface JtockAuthUrls {
