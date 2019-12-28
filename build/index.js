@@ -15,6 +15,7 @@ const defaultOptions = {
 class JtockAuth {
     constructor(options) {
         this.options = { ...defaultOptions, ...options };
+        this.useSession = this.options.mode === 'session';
         this.roles = options.useRoles ? [] : undefined;
         this.apiUrl = `${options.host}${options.prefixUrl ? options.prefixUrl : ""}`;
         this.apiAuthUrl = `${this.apiUrl}${options.authUrl ? options.authUrl : "/auth"}`;
@@ -64,7 +65,7 @@ class JtockAuth {
             try {
                 const signUpResponse = await axios_1.default.post(this.apiAuthUrl, {
                     ...userFields
-                }, { params: { confirm_success_url: confirmSuccessUrl } });
+                }, { params: { confirm_success_url: confirmSuccessUrl }, withCredentials: this.useSession });
                 this.debugIfActive(signUpResponse);
                 this.setSession(signUpResponse.headers);
                 resolve(signUpResponse);
@@ -81,7 +82,7 @@ class JtockAuth {
                 const signInResponse = await axios_1.default.post(this.signInUrl, {
                     [this.emailField]: email,
                     [this.passwordField]: password
-                });
+                }, { withCredentials: this.useSession });
                 this.debugIfActive(signInResponse);
                 this.setSession(signInResponse.headers);
                 const validateResponse = await this.validateToken(signInResponse.headers);
@@ -102,7 +103,8 @@ class JtockAuth {
             try {
                 localStorage.removeItem(storageKey);
                 const logOutResponse = await axios_1.default.delete(this.signOutUrl, {
-                    headers: { ...this.session }
+                    headers: { ...this.session },
+                    withCredentials: this.useSession
                 });
                 this.session = undefined;
                 this.debugIfActive(logOutResponse);
@@ -120,7 +122,8 @@ class JtockAuth {
         return new Promise(async (resolve, reject) => {
             try {
                 const logOutResponse = await axios_1.default.delete(this.apiAuthUrl, {
-                    headers: { ...this.session }
+                    headers: { ...this.session },
+                    withCredentials: this.useSession
                 });
                 this.debugIfActive(logOutResponse);
                 resolve(logOutResponse.data);
@@ -139,7 +142,8 @@ class JtockAuth {
                         uid: headers.uid,
                         client: headers.client,
                         "access-token": headers["access-token"]
-                    }
+                    },
+                    withCredentials: this.useSession,
                 });
                 this.setSession(response.headers);
                 resolve(response.data);
@@ -158,7 +162,8 @@ class JtockAuth {
                     password: newPassword,
                     password_confirmation: newPasswordConfirmation
                 }, {
-                    headers: { ...this.session }
+                    headers: { ...this.session },
+                    withCredentials: this.useSession,
                 });
                 this.debugIfActive(changePasswordResponse);
                 this.setSession(changePasswordResponse.headers);
@@ -176,7 +181,7 @@ class JtockAuth {
     resetPassword(email, redirectUrl) {
         return new Promise(async (resolve, reject) => {
             try {
-                const resetPasswordResponse = await axios_1.default.post(`${this.apiAuthUrl}/password`, { email, redirect_url: redirectUrl });
+                const resetPasswordResponse = await axios_1.default.post(`${this.apiAuthUrl}/password`, { email, redirect_url: redirectUrl }, { withCredentials: this.useSession });
                 this.debugIfActive(resetPasswordResponse);
                 resolve(resetPasswordResponse);
             }
@@ -190,7 +195,8 @@ class JtockAuth {
         return new Promise(async (resolve, reject) => {
             try {
                 const updatePassword = await axios_1.default.get(`${this.apiAuthUrl}/password/edit`, {
-                    params: { reset_password_token: token, redirect_url: redirectUrl }
+                    params: { reset_password_token: token, redirect_url: redirectUrl },
+                    withCredentials: this.useSession
                 });
                 this.debugIfActive(updatePassword);
                 resolve(updatePassword);
@@ -211,6 +217,7 @@ class JtockAuth {
                     url,
                     method: options.method,
                     data: options.data,
+                    withCredentials: this.useSession,
                     headers: {
                         ...options.headers,
                         ...this.session

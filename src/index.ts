@@ -26,8 +26,10 @@ class JtockAuth {
   signOutUrl: string;
   validateTokenUrl: string;
   roles: Array<any> | undefined;
+  useSession: boolean;
   constructor(options: JtockAuthOptions) {
     this.options = { ...defaultOptions, ...options };
+    this.useSession = this.options.mode === 'session';
     this.roles = options.useRoles ? [] : undefined;
     this.apiUrl = `${options.host}${
       options.prefixUrl ? options.prefixUrl : ""
@@ -94,7 +96,7 @@ class JtockAuth {
           {
             ...userFields
           },
-          { params: { confirm_success_url: confirmSuccessUrl } }
+          { params: { confirm_success_url: confirmSuccessUrl }, withCredentials: this.useSession }
         );
         this.debugIfActive(signUpResponse);
         this.setSession(signUpResponse.headers);
@@ -112,7 +114,7 @@ class JtockAuth {
         const signInResponse = await Axios.post(this.signInUrl, {
           [this.emailField]: email,
           [this.passwordField]: password
-        });
+        }, {withCredentials: this.useSession});
         this.debugIfActive(signInResponse);
         this.setSession(signInResponse.headers);
         const validateResponse = await this.validateToken(
@@ -135,7 +137,8 @@ class JtockAuth {
       try {
         localStorage.removeItem(storageKey);
         const logOutResponse = await Axios.delete(this.signOutUrl, {
-          headers: { ...this.session }
+          headers: { ...this.session },
+          withCredentials: this.useSession
         });
         this.session = undefined;
         this.debugIfActive(logOutResponse);
@@ -153,7 +156,8 @@ class JtockAuth {
     return new Promise(async (resolve, reject) => {
       try {
         const logOutResponse = await Axios.delete(this.apiAuthUrl, {
-          headers: { ...this.session }
+          headers: { ...this.session },
+          withCredentials: this.useSession
         });
         this.debugIfActive(logOutResponse);
         resolve(logOutResponse.data);
@@ -172,7 +176,8 @@ class JtockAuth {
             uid: headers.uid,
             client: headers.client,
             "access-token": headers["access-token"]
-          }
+          },
+          withCredentials: this.useSession,
         });
         this.setSession(response.headers);
         resolve(response.data);
@@ -198,7 +203,8 @@ class JtockAuth {
             password_confirmation: newPasswordConfirmation
           },
           {
-            headers: { ...this.session }
+            headers: { ...this.session },
+            withCredentials: this.useSession,
           }
         );
         this.debugIfActive(changePasswordResponse);
@@ -219,7 +225,7 @@ class JtockAuth {
       try {
         const resetPasswordResponse = await Axios.post(
           `${this.apiAuthUrl}/password`,
-          { email, redirect_url: redirectUrl }
+          { email, redirect_url: redirectUrl }, {withCredentials: this.useSession}
         );
         this.debugIfActive(resetPasswordResponse);
         resolve(resetPasswordResponse);
@@ -236,7 +242,8 @@ class JtockAuth {
         const updatePassword = await Axios.get(
           `${this.apiAuthUrl}/password/edit`,
           {
-            params: { reset_password_token: token, redirect_url: redirectUrl }
+            params: { reset_password_token: token, redirect_url: redirectUrl },
+            withCredentials: this.useSession
           }
         );
         this.debugIfActive(updatePassword);
@@ -258,6 +265,7 @@ class JtockAuth {
           url,
           method: options.method,
           data: options.data,
+          withCredentials: this.useSession,
           headers: {
             ...options.headers,
             ...this.session
