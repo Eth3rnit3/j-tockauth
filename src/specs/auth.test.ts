@@ -72,7 +72,7 @@ describe("New user", () => {
 
   it("To be able to get restricted route", async () => {
     mock.onGet("http://127.0.0.1:3000/api/v1/users").reply(200, privateUsers);
-    const res: any = await auth.authenticateRoute("/users", {
+    const res: any = await auth.privateRoute("/users", {
       method: "get"
     });
     expect(res.data.data.users.length).toBeGreaterThan(1);

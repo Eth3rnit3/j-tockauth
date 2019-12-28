@@ -2,7 +2,7 @@ import Axios, { AxiosResponse } from "axios";
 import {
   JtockAuthOptions,
   DeviseHeader,
-  authenticateRouteOptions
+  privateRouteOptions
 } from "./@types/options";
 
 const storageKey = "J-tockAuth-Storage";
@@ -20,9 +20,11 @@ class JtockAuth {
   signOutUrl: string;
   validateTokenUrl: string;
   roles: Array<any> | undefined;
+  mode: 'local' | 'session';
   constructor(options: JtockAuthOptions) {
     this.debug = options.debug ? options.debug : false;
     this.roles = options.useRoles ? [] : undefined;
+    this.mode = options.mode ? options.mode : 'local';
     this.options = options;
     this.apiUrl = `${options.host}${
       options.prefixUrl ? options.prefixUrl : ""
@@ -242,7 +244,7 @@ class JtockAuth {
     });
   }
 
-  authenticateRoute(url: string, options: authenticateRouteOptions = {}) {
+  privateRoute(url: string, options: privateRouteOptions = {}) {
     if (url[0] === "/") {
       url = `${this.apiUrl}${url}`;
     }
@@ -302,14 +304,20 @@ class JtockAuth {
   }
 
   private setLastSession() {
+    if(this.options.mode === 'local'){
+      this.setLastLocalSession();
+    }
+    if(this.options.useRoles){
+      this.setLastRoles()
+    }
+    
+  }
+
+  private setLastLocalSession() {
     const lastSession = localStorage.getItem(storageKey);
-    const lastRoles = localStorage.getItem(storageRoleKey);
     if (lastSession) {
       const headers: DeviseHeader = JSON.parse(lastSession);
       this.setSession(headers);
-    }
-    if (lastRoles) {
-      this.roles = JSON.parse(lastRoles)
     }
   }
 
@@ -317,6 +325,13 @@ class JtockAuth {
     if(this.options.useRoles){
       this.roles = response && response.data ? response.data.roles : []
       localStorage.setItem(storageRoleKey, JSON.stringify(this.roles))
+    }
+  }
+
+  private setLastRoles() {
+    const lastRoles = localStorage.getItem(storageRoleKey);
+    if (lastRoles) {
+      this.roles = JSON.parse(lastRoles)
     }
   }
 }

@@ -6,6 +6,7 @@ export interface JtockAuthOptions {
   passwordField?: string; //    default: 'password'
   debug?: boolean; //  default: false
   useRoles?: boolean; // default: false
+  mode?: 'local' | 'session'; // default: 'local'
 }
 
 export interface JtockAuthUrls {
@@ -25,7 +26,7 @@ export interface DeviseHeader {
   uid: string;
 }
 
-export interface authenticateRouteOptions {
+export interface privateRouteOptions {
   method?:
     | "GET"
     | "POST"

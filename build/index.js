@@ -10,6 +10,7 @@ class JtockAuth {
     constructor(options) {
         this.debug = options.debug ? options.debug : false;
         this.roles = options.useRoles ? [] : undefined;
+        this.mode = options.mode ? options.mode : 'local';
         this.options = options;
         this.apiUrl = `${options.host}${options.prefixUrl ? options.prefixUrl : ""}`;
         this.apiAuthUrl = `${this.apiUrl}${options.authUrl ? options.authUrl : "/auth"}`;
@@ -195,7 +196,7 @@ class JtockAuth {
             }
         });
     }
-    authenticateRoute(url, options = {}) {
+    privateRoute(url, options = {}) {
         if (url[0] === "/") {
             url = `${this.apiUrl}${url}`;
         }
@@ -253,20 +254,30 @@ class JtockAuth {
         localStorage.setItem(storageKey, JSON.stringify(session));
     }
     setLastSession() {
+        if (this.options.mode === 'local') {
+            this.setLastLocalSession();
+        }
+        if (this.options.useRoles) {
+            this.setLastRoles();
+        }
+    }
+    setLastLocalSession() {
         const lastSession = localStorage.getItem(storageKey);
-        const lastRoles = localStorage.getItem(storageRoleKey);
         if (lastSession) {
             const headers = JSON.parse(lastSession);
             this.setSession(headers);
-        }
-        if (lastRoles) {
-            this.roles = JSON.parse(lastRoles);
         }
     }
     setRoles(response) {
         if (this.options.useRoles) {
             this.roles = response && response.data ? response.data.roles : [];
             localStorage.setItem(storageRoleKey, JSON.stringify(this.roles));
+        }
+    }
+    setLastRoles() {
+        const lastRoles = localStorage.getItem(storageRoleKey);
+        if (lastRoles) {
+            this.roles = JSON.parse(lastRoles);
         }
     }
 }
