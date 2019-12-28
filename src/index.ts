@@ -8,9 +8,15 @@ import {
 const storageKey = "J-tockAuth-Storage";
 const storageRoleKey = "J-tockAuth-roles";
 
+const defaultOptions: JtockAuthOptions = {
+  host: 'http://127.0.0.1:3000',
+  mode: 'local',
+  debug: false,
+  useRoles: false
+}
+
 class JtockAuth {
   options: JtockAuthOptions;
-  debug: boolean;
   apiUrl: string;
   apiAuthUrl: string;
   emailField: string;
@@ -20,12 +26,9 @@ class JtockAuth {
   signOutUrl: string;
   validateTokenUrl: string;
   roles: Array<any> | undefined;
-  mode: 'local' | 'session';
   constructor(options: JtockAuthOptions) {
-    this.debug = options.debug ? options.debug : false;
+    this.options = { ...defaultOptions, ...options };
     this.roles = options.useRoles ? [] : undefined;
-    this.mode = options.mode ? options.mode : 'local';
-    this.options = options;
     this.apiUrl = `${options.host}${
       options.prefixUrl ? options.prefixUrl : ""
     }`;
@@ -72,6 +75,7 @@ class JtockAuth {
       .catch(error => {
         if (error.response) {
           console.log("Connexion success");
+          this.debugIfActive("J-TockAuth Config", this)
         } else {
           console.log("Connexion errror");
         }
@@ -273,7 +277,7 @@ class JtockAuth {
   }
 
   private debugIfActive(...arg: any) {
-    if (this.debug) {
+    if (this.options.debug) {
       console.log(...arg);
     }
   }

@@ -6,12 +6,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const storageKey = "J-tockAuth-Storage";
 const storageRoleKey = "J-tockAuth-roles";
+const defaultOptions = {
+    host: 'http://127.0.0.1:3000',
+    mode: 'local',
+    debug: false,
+    useRoles: false
+};
 class JtockAuth {
     constructor(options) {
-        this.debug = options.debug ? options.debug : false;
+        this.options = { ...defaultOptions, ...options };
         this.roles = options.useRoles ? [] : undefined;
-        this.mode = options.mode ? options.mode : 'local';
-        this.options = options;
         this.apiUrl = `${options.host}${options.prefixUrl ? options.prefixUrl : ""}`;
         this.apiAuthUrl = `${this.apiUrl}${options.authUrl ? options.authUrl : "/auth"}`;
         this.emailField = options.emailField ? options.emailField : "email";
@@ -45,6 +49,7 @@ class JtockAuth {
             .catch(error => {
             if (error.response) {
                 console.log("Connexion success");
+                this.debugIfActive("J-TockAuth Config", this);
             }
             else {
                 console.log("Connexion errror");
@@ -225,7 +230,7 @@ class JtockAuth {
         });
     }
     debugIfActive(...arg) {
-        if (this.debug) {
+        if (this.options.debug) {
             console.log(...arg);
         }
     }
