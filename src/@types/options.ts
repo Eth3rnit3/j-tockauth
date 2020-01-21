@@ -26,7 +26,7 @@ export interface DeviseHeader {
   uid: string;
 }
 
-export interface privateRouteOptions {
+export interface PrivateRouteOptions {
   method?:
     | "GET"
     | "POST"

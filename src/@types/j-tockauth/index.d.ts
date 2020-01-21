@@ -2,7 +2,7 @@
 import {
   JtockAuthOptions,
   DeviseHeader,
-  authenticateRouteOptions
+  PrivateRouteOptions
 } from "../options";
 
 export as namespace JtockAuth;
@@ -34,9 +34,9 @@ declare class JtockAuth {
   ): Promise<any>;
   resetPassword(email: string, redirectUrl: string): Promise<any>;
   updatePasswordByToken(token: string, redirectUrl: string): Promise<any>;
-  authenticateRoute(
+  privateRoute(
     url: string,
-    options: authenticateRouteOptions
+    options: PrivateRouteOptions
   ): Promise<any>;
 }
 export default JtockAuth;

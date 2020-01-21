@@ -2,7 +2,7 @@ import Axios, { AxiosResponse } from "axios";
 import {
   JtockAuthOptions,
   DeviseHeader,
-  privateRouteOptions
+  PrivateRouteOptions
 } from "./@types/options";
 
 const storageKey = "J-tockAuth-Storage";
@@ -142,7 +142,7 @@ class JtockAuth {
         resolve(logOutResponse.data);
       } catch (err) {
         this.debugIfActive(err.response);
-        reject(err);
+        resolve('Error when delete server session but local was deleted');
       }
     });
   }
@@ -248,7 +248,7 @@ class JtockAuth {
     });
   }
 
-  privateRoute(url: string, options: privateRouteOptions = {}) {
+  privateRoute(url: string, options: PrivateRouteOptions = {}) {
     if (url[0] === "/") {
       url = `${this.apiUrl}${url}`;
     }

@@ -110,7 +110,7 @@ class JtockAuth {
             }
             catch (err) {
                 this.debugIfActive(err.response);
-                reject(err);
+                resolve('Error when delete server session but local was deleted');
             }
         });
     }
