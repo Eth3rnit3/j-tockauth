@@ -33,7 +33,7 @@ class JtockAuth {
             if (Array.isArray(response.data)) {
                 return {
                     ...response,
-                    total: response.data.length
+                    total: response.headers['data-count']
                 };
             }
             return response;
@@ -211,6 +211,7 @@ class JtockAuth {
                     url,
                     method: options.method,
                     data: options.data,
+                    params: options.params,
                     headers: {
                         ...options.headers,
                         ...this.session

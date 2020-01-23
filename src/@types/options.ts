@@ -43,5 +43,6 @@ export interface PrivateRouteOptions {
     | "patch"
     | "PATCH";
   data?: object | FormData;
+  params?: object | string;
   headers?: object;
 }
