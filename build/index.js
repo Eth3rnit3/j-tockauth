@@ -99,11 +99,12 @@ class JtockAuth {
         if (!this.session)
             throw "No active session";
         localStorage.removeItem(storageKey);
+        const lastSession = this.session;
         this.session = undefined;
         return new Promise(async (resolve, reject) => {
             try {
                 const logOutResponse = await axios_1.default.delete(this.signOutUrl, {
-                    headers: { ...this.session }
+                    headers: { ...lastSession }
                 });
                 this.debugIfActive(logOutResponse);
                 resolve(logOutResponse.data);
