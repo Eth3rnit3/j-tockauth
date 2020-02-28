@@ -131,13 +131,13 @@ class JtockAuth {
   signOut() {
     if (!this.session) throw "No active session";
 
+    localStorage.removeItem(storageKey);
+    this.session = undefined;
     return new Promise(async (resolve, reject) => {
       try {
-        localStorage.removeItem(storageKey);
         const logOutResponse = await Axios.delete(this.signOutUrl, {
           headers: { ...this.session }
         });
-        this.session = undefined;
         this.debugIfActive(logOutResponse);
         resolve(logOutResponse.data);
       } catch (err) {
