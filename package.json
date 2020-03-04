@@ -1,6 +1,6 @@
 {
   "name": "j-tockauth",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "javascript connector for DeviseTokenAuth for Ruby on Rails",
   "main": "./build/index.js",
   "types": "./src/@types/j-tockauth/index.d.ts",
