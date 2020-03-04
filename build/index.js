@@ -33,7 +33,7 @@ class JtockAuth {
             if (Array.isArray(response.data)) {
                 return {
                     ...response,
-                    total: response.headers['data-count']
+                    total: parseInt(response.headers['data-count'])
                 };
             }
             return response;
