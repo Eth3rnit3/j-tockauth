@@ -26,7 +26,7 @@
   "homepage": "https://github.com/Eth3rnit3/j-tockauth#readme",
   "dependencies": {
     "@types/axios": "^0.14.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "axios-mock-adapter": "^1.17.0"
   },
   "devDependencies": {
